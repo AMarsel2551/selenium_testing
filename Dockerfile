@@ -17,8 +17,8 @@ RUN apt-get update && apt-get install -y \
     libxtst6 \
     libnss3 \
     libgtk-3-0 \
-    chromium \
-    chromium-driver \
+    chromium-driver=114.0.5735.90-0ubuntu1~20.04.1 \
+    chromium=114.0.5735.90-0ubuntu1~20.04.1 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
