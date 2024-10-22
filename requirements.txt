@@ -1,7 +1,2 @@
-numpy
-pandas
-selenium
-pymsteams
-bs4
-Office365-REST-Python-Client
-slackclient
+selenium==4.0.0
+webdriver-manager
