@@ -33,6 +33,6 @@ except:
 
 
 print("END")
-time.sleep(5)
+time.sleep(60)
 
 
