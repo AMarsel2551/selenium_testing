@@ -1,5 +1,4 @@
 from selenium.common.exceptions import TimeoutException
-
 from app.logger import log
 from app.models import Product, Price
 from app.seleniumes import WebDriverContextManager
@@ -15,12 +14,14 @@ TIMEOUT_ELEMENT = 2.5
 def drive_error(func):
     def wrapper(*args, **kwargs):
         try:
-            return func(*args, **kwargs)
+            r =  func(*args, **kwargs)
+            # log.info(f"func_name: {func.__name__} is ok")
+            return r
 
         except TimeoutException:
-            print(f"func_name: {func.__name__} error: timeout")
+            log.warning(f"func_name: {func.__name__} error: timeout")
         except Exception as error:
-            print(f"func_name: {func.__name__} error: {error}")
+            log.warning(f"func_name: {func.__name__} error: {error}")
         return None
     return wrapper
 
@@ -36,14 +37,14 @@ def click(wait):
 
 @drive_error
 def get_final_price(wait) -> int:
-    element = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".m2s_27.sm0_27")))
+    element = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "span.s5m_27.ms4_27")))
     price = int(element.text.replace(" ", "").replace("₽", ""))
     return price
 
 
 def get_basic_price(wait) -> int | None:
     try:
-        element = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "span.sm6_27.sm7_27.sm5_27.s6m_27")))
+        element = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "span.mt_27.tm0_27.ms9_27.tm_277")))
         price = int(element.text.replace(" ", "").replace("₽", ""))
         return price
     except:
@@ -69,28 +70,27 @@ def get_price(wait) -> dict:
 
 @drive_error
 def get_name(wait) -> str:
-    element = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "h1.mt3_27.tsHeadline550Medium")))
+    element = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "h1.tm6_27.tsHeadline550Medium")))
     return element.text
 
 
 @drive_error
 def get_seller(wait) -> str:
-    element = wait.until(EC.presence_of_element_located((By.CLASS_NAME, "k9u_27")))
+    element = wait.until(EC.presence_of_element_located((By.CLASS_NAME, "kv2_27")))
     return element.get_attribute("title")
 
 
 @drive_error
-def get_brand_and_category(wait) -> tuple[str, str]:
-    elements = wait.until(EC.presence_of_all_elements_located((By.XPATH, '//a[contains(@class, "a6 j0e_10")]/span')))
+def get_brand_and_category(wait) -> dict:
+    ol_element = wait.until(EC.presence_of_element_located((By.CLASS_NAME, 'je1_10')))
+    elements = ol_element.find_elements(By.TAG_NAME, 'li')
     elements_text = [element.text for element in elements]
-    brand = elements_text[-1]
-    category = elements_text[-2]
-    return brand, category
+    return {"brand": elements_text[-1], "category": elements_text[-2]}
 
 
 @drive_error
 def get_photo(wait) -> Any:
-    images = wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, "div.u5k_27 img")))
+    images = wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, "div.t8l_27 img")))
     image_urls = [img.get_attribute('src') for img in images]
     for image_url in image_urls:
         if "video" in image_url:
@@ -110,7 +110,8 @@ def get_rating(wait) -> float:
 
 def start(driver, data: list, sku: str, i: int) -> list:
     try:
-        driver.get(f"https://www.ozon.ru/product/{sku}")
+        obj = {}
+        driver.get(f"https://www.ozon.ru/product/{sku}/?oos_search=false")
         wait = WebDriverWait(driver=driver, timeout=TIMEOUT_ELEMENT)
 
         if i == 0:
@@ -126,7 +127,13 @@ def start(driver, data: list, sku: str, i: int) -> list:
         seller = get_seller(wait=wait)
 
         # brand and category
-        brand, category = get_brand_and_category(wait=wait)
+        brand_category = get_brand_and_category(wait=wait)
+        if isinstance(brand_category, dict):
+            brand = brand_category['brand']
+            category = brand_category['category']
+        else:
+            brand = None
+            category = None
 
         # photo
         photo = get_photo(wait=wait)
@@ -134,16 +141,17 @@ def start(driver, data: list, sku: str, i: int) -> list:
         # rating
         rating = get_rating(wait=wait)
 
-        data.append(Product(
-            sku=sku,
-            category=category,
-            name=name,
-            seller=seller,
-            brand=brand,
-            photo=photo,
-            rating=rating,
-            price=Price(**price),
-        ))
+        obj = {
+            "sku": sku,
+            "category": category,
+            "name": name,
+            "seller": seller,
+            "brand": brand,
+            "photo": photo,
+            "rating": rating,
+            "price": price,
+        }
+        data.append(Product(**obj))
     except Exception as error:
         log.error(f"error: {error}")
     return data
