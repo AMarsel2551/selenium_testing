@@ -1,6 +1,4 @@
-import traceback
-from app.seleniumes import WebDriverContextManager
-from fastapi import Body, FastAPI, Path
+from fastapi import Body, FastAPI
 from app.scraper import main as main_scraper
 
 
