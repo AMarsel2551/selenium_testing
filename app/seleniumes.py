@@ -2,8 +2,8 @@ from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 
 
-# PATH = "/app/chromedriver"
-PATH = ChromeDriverManager().install()
+PATH = "/app/chromedriver"
+# PATH = ChromeDriverManager().install()
 
 
 class WebDriverContextManager:
