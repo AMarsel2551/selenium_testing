@@ -34,4 +34,4 @@ COPY ./app /app
 WORKDIR /app
 
 #CMD python ./main.py
-CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port 8080 --workers 1 --log-level info"]
+CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port 8080 --workers 1 --log-level info"]
