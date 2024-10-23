@@ -13,8 +13,8 @@ try:
 
     path = ChromeDriverManager().install()
     print(f"path 1: {path}")
-    # path = "./app/chromedriver/chromedriver-linux64/chromedriver"
-    # print(f"path 2: {path}")
+    path = "./app/chromedriver"
+    print(f"path 2: {path}")
     driver = webdriver.Chrome(path, options=options)
 
 
