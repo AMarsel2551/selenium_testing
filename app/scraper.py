@@ -110,7 +110,6 @@ def get_rating(wait) -> float:
 
 def start(driver, data: list, sku: str, i: int) -> list:
     try:
-        obj = {}
         driver.get(f"https://www.ozon.ru/product/{sku}/?oos_search=false")
         wait = WebDriverWait(driver=driver, timeout=TIMEOUT_ELEMENT)
 
