@@ -11,7 +11,8 @@ try:
     options.add_argument("--no-sandbox")  # Обход некоторых проблем с безопасностью
     options.add_argument("--disable-dev-shm-usage")  # Уменьшение использования памяти
 
-    path = ChromeDriverManager().install()
+    # path = ChromeDriverManager().install()
+    path = "./app/chromedriver/chromedriver-linux64/chromedriver"
     print(f"path: {path}")
     driver = webdriver.Chrome(path, options=options)
 
